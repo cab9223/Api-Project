@@ -1,0 +1,25 @@
+{
+  "name": "simple-API2",
+  "version": "1.0.0",
+  "engines": {
+    "node": "8.5.0",
+    "npm": "5.3.x"
+  },
+  "description": "My API 2",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Tests complete\""
+  },
+  "author": "Christopher Bennett",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "eslint": "^4.6.1",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0"
+  },
+  "dependencies": {
+    "save": "^2.3.1"
+  }
+}
