@@ -1,11 +1,11 @@
 {
-  "name": "simple-API2",
+  "name": "Api-Project",
   "version": "1.0.0",
   "engines": {
     "node": "8.5.0",
     "npm": "5.3.x"
   },
-  "description": "My API 2",
+  "description": "My API Project",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/server.js",

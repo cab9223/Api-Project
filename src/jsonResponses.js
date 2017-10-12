@@ -13,6 +13,9 @@ const crypto = require('crypto');
 // We will be working with databases in the next few weeks.
 const users = {};
 
+const keyValArray = [];
+let characterNum = 0;
+
 // sha1 is a bit of a quicker hash algorithm for insecure things
 // It's a standard library for insecure data hashes
 // For more security, you want sha512 or an actual encryption algorithm
@@ -32,6 +35,8 @@ const respondJSON = (request, response, status, object) => {
   const headers = {
     'Content-Type': 'application/json',
     etag: digest,
+    index: keyValArray,
+    count: characterNum,
   };
 
   // send response with json object
@@ -50,6 +55,8 @@ const respondJSONMeta = (request, response, status) => {
   const headers = {
     'Content-Type': 'application/json',
     etag: digest,
+    index: keyValArray,
+    count: characterNum,
   };
 
   // send response without json object, just headers
@@ -110,16 +117,38 @@ const updateUser = () => {
 const addUser = (request, response, body) => {
   // default json message
   const responseJSON = {
-    message: 'Name and age are both required.',
+    message: 'All fields are required.',
   };
 
   // check to make sure we have both fields
   // We might want more validation than just checking if they exist
   // This could easily be abused with invalid types (such as booleans, numbers, etc)
   // If either are missing, send back an error message as a 400 badRequest
-  if (!body.name || !body.age) {
-    responseJSON.id = 'missingParams';
-    return respondJSON(request, response, 400, responseJSON);
+  if (body.level < 5) {
+    if (!body.name || !body.character || !body.level || body.mods0 === 'select') {
+      responseJSON.id = 'missingParams';
+      return respondJSON(request, response, 400, responseJSON);
+    }
+  } else if (body.level > 19) {
+    if (!body.name || !body.character || !body.level || body.mods0 === 'select' || body.mods1 === 'select' || body.mods2 === 'select' || body.mods3 === 'select' || body.mods4 === 'select' || body.mods5 === 'select' || body.mods6 === 'select' || body.mods7 === 'select') {
+      responseJSON.id = 'missingParams';
+      return respondJSON(request, response, 400, responseJSON);
+    }
+  } else if (body.level > 14) {
+    if (!body.name || !body.character || !body.level || body.mods0 === 'select' || body.mods1 === 'select' || body.mods2 === 'select' || body.mods3 === 'select' || body.mods4 === 'select' || body.mods5 === 'select') {
+      responseJSON.id = 'missingParams';
+      return respondJSON(request, response, 400, responseJSON);
+    }
+  } else if (body.level > 9) {
+    if (!body.name || !body.character || !body.level || body.mods0 === 'select' || body.mods1 === 'select' || body.mods2 === 'select' || body.mods3 === 'select') {
+      responseJSON.id = 'missingParams';
+      return respondJSON(request, response, 400, responseJSON);
+    }
+  } else if (body.level > 4) {
+    if (!body.name || !body.character || !body.level || body.mods0 === 'select' || body.mods1 === 'select' || body.mods2 === 'select') {
+      responseJSON.id = 'missingParams';
+      return respondJSON(request, response, 400, responseJSON);
+    }
   }
 
   // default status code to 201 created
@@ -132,11 +161,24 @@ const addUser = (request, response, body) => {
   } else {
     // otherwise create an object with that name
     users[body.name] = {};
+    users[body.name].characterNum = characterNum;
+    keyValArray[characterNum] = body.name;
+    characterNum++;
   }
 
   // add or update fields for this user name
   users[body.name].name = body.name;
-  users[body.name].age = body.age;
+  users[body.name].character = body.character;
+  users[body.name].level = body.level;
+  users[body.name].mod0 = body.mods0;
+  users[body.name].mod1 = body.mods1;
+  users[body.name].mod2 = body.mods2;
+  users[body.name].mod3 = body.mods3;
+  users[body.name].mod4 = body.mods4;
+  users[body.name].mod5 = body.mods5;
+  users[body.name].mod6 = body.mods6;
+  users[body.name].mod7 = body.mods7;
+
 
   updateUser();
 
@@ -178,4 +220,5 @@ module.exports = {
   updateUser,
   notFound,
   notFoundMeta,
+  keyValArray,
 };

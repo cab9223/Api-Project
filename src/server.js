@@ -62,6 +62,9 @@ const onRequest = (request, response) => {
       } else if (parsedUrl.pathname === '/style.css') {
         // if stylesheet, send stylesheet
         htmlHandler.getCSS(request, response);
+      } else if (parsedUrl.pathname === '/heavy_data.ttf') {
+        // if stylesheet, send stylesheet
+        htmlHandler.getFont(request, response);
       } else if (parsedUrl.pathname === '/getUsers') {
         // if get users, send user object back
         jsonHandler.getUsers(request, response);

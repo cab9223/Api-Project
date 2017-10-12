@@ -1,21 +1,56 @@
+@font-face {
+  font-family: heavy_data;
+  src: url(/src/heavy_data.ttf);
+}
+
 html, body {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
+  font-family: heavy_data, arial, sans-serif;
 }
 
-#top {
+canvas {
+  text-align: center;
+}
+
+
+
+#sheet {
+  display: block;
   text-align: center;
   margin: 0 auto;
 }
 
+#modsDiv1 {
+  display: block;
+}
+
+#top {
+  display: block;
+  text-align: left;
+  margin: 0 auto;
+  width:150px;
+}
+
 #top h1 {
+  width:300px;
+  margin-left: -60px;
+  text-align: center;
   font-size: 2em;
 }
 
+#top p {
+  width:800px;
+  margin-left: -300px;
+  text-align: center;
+  font-size: 1em;
+}
+
 #content {
-  margin-top: 100px;
+  
+  margin-top: 20px;
   font-size: 2em;
   text-align: center;
 }

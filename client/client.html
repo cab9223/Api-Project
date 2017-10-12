@@ -6,6 +6,8 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+  
+  
   //function to parse our response
     const parseJSON = (xhr, content) => {
       //parse response (obj will be empty in a 204 updated)
@@ -13,19 +15,74 @@
       console.dir(obj);
       
       //if message in response, add to screen
-      if(obj.message) {
-        const p = document.createElement('p');
-        p.textContent = `Message: ${obj.message}`;
-        content.appendChild(p);
-      }
+      //if(obj.message) {
+      //  const p = document.createElement('p');
+      //  p.textContent = `Message: ${obj.message}`;
+      //  content.appendChild(p);
+      //}
       
       //if users in response, add to screen
-      if(obj.users) {
-        const userList = document.createElement('p');
-        const users = JSON.stringify(obj.users);
-        userList.textContent = users;
-        content.appendChild(userList);
-      }
+      //if(obj.users) {
+      //  const userList = document.createElement('p');
+      //  const users = JSON.stringify(obj.users);
+      //  userList.textContent = users;
+      //  content.appendChild(userList);
+      //}
+	  
+	  let index = xhr.getResponseHeader('index');
+	  
+	  let count = xhr.getResponseHeader('count');
+	  
+	  let temp = new Array();
+	  
+	  temp = index.split(", ");
+	  
+	  console.log(xhr.getResponseHeader('index'));
+	  
+	  console.dir(temp);
+	  
+	  console.log("COUNT " + count);
+	  
+	  //console.log("NAME IS : " + obj.users['HAHA'].character);
+	  
+	  for( let x = 0; x < count; x++){
+	  
+	  ctx[x].clearRect(0, 0, WIDTH, HEIGHT);
+	  
+	  ctx[x].fillStyle = "green";
+	  ctx[x].fillRect(0,0,WIDTH,HEIGHT);
+	  ctx[x].strokeStyle = "black";
+	  ctx[x].lineWidth = 3;
+	  ctx[x].strokeRect(0,0,WIDTH,HEIGHT);
+	  
+	  fillText(ctx[x],obj.users[temp[x]].name,40,35, "30pt serif", "black");
+	  fillText(ctx[x],obj.users[temp[x]].character,40,60, "15pt serif", "black");
+	  fillText(ctx[x],"Version Num: " + obj.users[temp[x]].level,40,80, "13pt serif", "black");
+	  fillText(ctx[x],"Picture (Not yet implimented)",40,120, "15pt serif", "black");
+	  fillText(ctx[x],"Tier 1",40,190, "12pt serif", "black");
+	  fillText(ctx[x],obj.users[temp[x]].mod0,40,205, "10pt serif", "black");
+	  if(obj.users[temp[x]].level > 4){
+	    fillText(ctx[x],"Tier 2",40,220, "12pt serif", "black");
+		fillText(ctx[x],obj.users[temp[x]].mod1,40,235, "10pt serif", "black");
+		fillText(ctx[x],obj.users[temp[x]].mod2,40,245, "10pt serif", "black");
+	  }
+	  if(obj.users[temp[x]].level > 9){
+	    fillText(ctx[x],"Tier 3",40,270, "12pt serif", "black");
+	    fillText(ctx[x],obj.users[temp[x]].mod3,40,285, "10pt serif", "black");
+	  }
+	  if(obj.users[temp[x]].level > 14){
+	    fillText(ctx[x],"Tier 4",40,300, "12pt serif", "black");  
+	    fillText(ctx[x],obj.users[temp[x]].mod4,40,315, "10pt serif", "black");
+	    fillText(ctx[x],obj.users[temp[x]].mod5,40,325, "10pt serif", "black");
+	  }
+	  if(obj.users[temp[x]].level > 19){
+	    fillText(ctx[x],"Tier 5",40,350, "12pt serif", "black");
+	    fillText(ctx[x],obj.users[temp[x]].mod6,40,365, "10pt serif", "black");
+	    fillText(ctx[x],obj.users[temp[x]].mod7,40,375, "10pt serif", "black");
+	  }
+	  
+	  } //End for loop
+	  
     };
   
     const handleResponse = (xhr, parseResponse) => {
@@ -42,7 +99,7 @@
       //The browser will either re-fire a 200 or will show a 304.
       switch(xhr.status) {
         case 200: //if success
-          content.innerHTML = `<b>Success</b>`;
+          content.innerHTML = '<b>Success</b>';
           break;
         case 201: //if created
           content.innerHTML = '<b>Create</b>';
@@ -57,13 +114,13 @@
           content.innerHTML = '<b>Not Modified</b>';
           break;
         case 400: //if bad request
-          content.innerHTML = `<b>Bad Request</b>`;
+          content.innerHTML = '<b>Bad Request</b>';
           break;
         case 404: //if not found
-          content.innerHTML = `<b>Resource Not Found</b>`;
+          content.innerHTML = '<b>Resource Not Found</b>';
           break;
         default: //any other status
-          content.innerHTML = `Error code not implemented by client.`;
+          content.innerHTML = 'Error code not implemented by client.';
           break;
       }
       
@@ -120,9 +177,19 @@
       const nameAction = nameForm.getAttribute('action');
       const nameMethod = nameForm.getAttribute('method');
       
-      //grab the form's name and age fields so we can check user input
+      //grab the form's name and level fields so we can check user input
       const nameField = nameForm.querySelector('#nameField');
-      const ageField = nameForm.querySelector('#ageField');
+	  const characterField = nameForm.querySelector('#characterField');
+      const levelField = nameForm.querySelector('#levelField');
+	  
+	  const mods0 = nameForm.querySelector('#mods0');
+	  const mods1 = nameForm.querySelector('#mods1');
+	  const mods2 = nameForm.querySelector('#mods2');
+	  const mods3 = nameForm.querySelector('#mods3');
+	  const mods4 = nameForm.querySelector('#mods4');
+	  const mods5 = nameForm.querySelector('#mods5');
+	  const mods6 = nameForm.querySelector('#mods6');
+	  const mods7 = nameForm.querySelector('#mods7');
       
       //create a new Ajax request (remember this is asynchronous)
       const xhr = new XMLHttpRequest();
@@ -138,6 +205,7 @@
       
       //set our function to handle the response
       xhr.onload = () => handleResponse(xhr, true);
+	  
       
       //build our x-www-form-urlencoded format. Without ajax the 
       //browser would do this automatically but it forcefully changes pages
@@ -148,7 +216,7 @@
       //So ours might look like  name=test&age=22
       //Again the 'name' fields in the form are the variable names in the string
       //and the variable names the server will look for.
-      const formData = `name=${nameField.value}&age=${ageField.value}`;
+      const formData = `name=${nameField.value}&character=${characterField.value}&level=${levelField.value}&mods0=${mods0.value}&mods1=${mods1.value}&mods2=${mods2.value}&mods3=${mods3.value}&mods4=${mods4.value}&mods5=${mods5.value}&mods6=${mods6.value}&mods7=${mods7.value}`;
       
       //send our request with the data
       xhr.send(formData);
@@ -160,6 +228,179 @@
     };
 
     const init = () => {
+	
+	  canvas[0] = document.querySelector('#canvas0');
+	  canvas[0].width = WIDTH;
+	  canvas[0].height = HEIGHT;
+	  ctx[0] = canvas[0].getContext('2d');
+	  canvas[1] = document.querySelector('#canvas1');
+	  canvas[1].width = WIDTH;
+	  canvas[1].height = HEIGHT;
+	  ctx[1] = canvas[1].getContext('2d');
+	  canvas[2] = document.querySelector('#canvas2');
+	  canvas[2].width = WIDTH;
+	  canvas[2].height = HEIGHT;
+	  ctx[2] = canvas[2].getContext('2d');
+	  canvas[3] = document.querySelector('#canvas3');
+	  canvas[3].width = WIDTH;
+	  canvas[3].height = HEIGHT;
+	  ctx[3] = canvas[3].getContext('2d');
+	  canvas[4] = document.querySelector('#canvas4');
+	  canvas[4].width = WIDTH;
+	  canvas[4].height = HEIGHT;
+	  ctx[4] = canvas[4].getContext('2d');
+	  canvas[5] = document.querySelector('#canvas5');
+	  canvas[5].width = WIDTH;
+	  canvas[5].height = HEIGHT;
+	  ctx[5] = canvas[5].getContext('2d');
+	  
+	  ctx[0].fillStyle = "green";
+	  ctx[0].fillRect(0,0,WIDTH,HEIGHT);
+	  ctx[0].strokeStyle = "black";
+	  ctx[0].lineWidth = 3;
+	  ctx[0].strokeRect(0,0,WIDTH,HEIGHT);
+	  
+	  ctx[1].fillStyle = "green";
+	  ctx[1].fillRect(0,0,WIDTH,HEIGHT);
+	  ctx[1].strokeStyle = "black";
+	  ctx[1].lineWidth = 3;
+	  ctx[1].strokeRect(0,0,WIDTH,HEIGHT);
+	  
+	  ctx[2].fillStyle = "green";
+	  ctx[2].fillRect(0,0,WIDTH,HEIGHT);
+	  ctx[2].strokeStyle = "black";
+	  ctx[2].lineWidth = 3;
+	  ctx[2].strokeRect(0,0,WIDTH,HEIGHT);
+	  
+	
+	  let minLevel = document.nameForm.level;
+	  
+	  let mods0 = document.getElementById("modsDiv0");
+	  let mods1 = document.getElementById("modsDiv1");
+	  let mods2 = document.getElementById("modsDiv2");
+	  let mods3 = document.getElementById("modsDiv3");
+	  let mods4 = document.getElementById("modsDiv4");
+	  
+	  let modsList = new Array();
+	  modsList[0] = document.nameForm.mods0;
+	  modsList[1] = document.nameForm.mods1;
+      modsList[2] = document.nameForm.mods2;
+	  modsList[3] = document.nameForm.mods3;
+      modsList[4] = document.nameForm.mods4;
+	  modsList[5] = document.nameForm.mods5;
+      modsList[6] = document.nameForm.mods6;
+	  modsList[7] = document.nameForm.mods7;
+ 
+      let modules = new Array();
+      modules[0]="";
+      modules[1]=["Select|select", "Power Module|power", "Speed Module|speed", "Energy Module|energy", "Defense Module|defense", "Focus Chip|focus", "Creation Chip|creation", "Synchronous Chip|syncronous", "Intensification Chip|intenseify", "Enhance Circuit|enhance", "Mind Circuit|mind", "Limiter Circuit|limiter", "Mastery Circuit|mastery", "Data of Piccolo|piccolo", "Data of Vegeta|vegeta", "Data of Gohan|gohan", "Data of Tien|tien", "Data of Krillin|krillin"];
+ 
+      populateMods();
+ 
+	  function populateMods(){
+		let selectedGroup = 1;
+		
+        if (selectedGroup > 0){
+		for(let j = 0; j < 8; j++){
+          for (let i = 0; i < modules[selectedGroup].length; i++)
+            modsList[j].options[modsList[j].options.length]=new Option(modules[selectedGroup][i].split("|")[0], modules[selectedGroup][i].split("|")[1]);
+            modsList[j].selectedIndex = "0";
+		  }
+		}
+      }
+ 
+      function updateMods(){
+	    let selected = new Array();
+		
+		console.log("UPDATE");
+		
+	      selected[0] = document.nameForm.mods0.selectedIndex;
+	      selected[1] = document.nameForm.mods1.selectedIndex;
+		  selected[2] = document.nameForm.mods2.selectedIndex;
+	      selected[3] = document.nameForm.mods3.selectedIndex;
+	      selected[4] = document.nameForm.mods4.selectedIndex;
+		  selected[5] = document.nameForm.mods5.selectedIndex;
+	      selected[6] = document.nameForm.mods6.selectedIndex;
+		  selected[7] = document.nameForm.mods7.selectedIndex;
+		  
+		  console.log(selected[0]);
+		  console.log(selected[1]);
+		  console.log(selected[2]);
+		  console.log(selected[5]);
+		  
+		
+		let selectedGroup = 1;
+		
+	    if(selected == 0){
+			selectedGroup = 0;
+		}
+		for(let x = 0; x < 8; x++){
+		  //if(selected[x] == 0){
+            modsList[x].options.length = 0;
+		  //}
+		}
+        if (selectedGroup > 0){
+		for(let j = 0; j < 8; j++){
+          for (let i = 0; i < modules[selectedGroup].length; i++){
+		    modsList[j].options[modsList[j].options.length]=new Option(modules[selectedGroup][i].split("|")[0], modules[selectedGroup][i].split("|")[1]);
+		    if((selected[0] != i && selected[1] != i && selected[2] != i && selected[3] != i && selected[4] != i && selected[5] != i && selected[6] != i && selected[7] != i)){
+              modsList[j].options[i].disabled = false;
+		    } else {
+			  modsList[j].options[i].disabled = true;
+			}
+		  }
+		  modsList[j].selectedIndex = selected[j];
+		}
+        }
+      }
+	
+	  function showModLayers() {
+	    console.log("SHOW");
+	    if(minLevel.value > 19){
+		  mods1.style.display = "inline";
+          mods2.style.display = "inline";
+          mods3.style.display = "inline";
+          mods4.style.display = "inline";
+		} else if(minLevel.value > 14){
+		  mods1.style.display = "inline";
+          mods2.style.display = "inline";
+          mods3.style.display = "inline";
+		  mods4.style.display = "none";
+		} else if(minLevel.value > 9){
+		  mods1.style.display = "inline";
+          mods2.style.display = "inline";
+		  mods3.style.display = "none";
+		  mods4.style.display = "none";
+		} else if(minLevel.value > 4){
+          mods1.style.display = "inline";
+		  mods2.style.display = "none";
+		  mods3.style.display = "none";
+		  mods4.style.display = "none";
+		} else {
+		  mods1.style.display = "none";
+		  mods2.style.display = "none";
+		  mods3.style.display = "none";
+		  mods4.style.display = "none";
+		}
+      }
+	  
+	  mods1.style.display = "none";
+	  mods2.style.display = "none";
+	  mods3.style.display = "none";
+	  mods4.style.display = "none";
+	  
+	
+	  minLevel.onchange = showModLayers;
+	  
+	  //modsList[0].onchange = updateMods;
+	  
+	  for(let i = 0; i < 8; i++){
+	    modsList[i].onchange = updateMods;
+	  }
+	  
+	
+	  
+	
       //grab form
       const userForm = document.querySelector('#userForm');
 	  
@@ -177,22 +418,90 @@
       
       //attach submit event (for clicking submit or hitting enter)
       nameForm.addEventListener('submit', addUser);
+	  
+	  
+	 
     };
+	
+	//Function for making canvas text
+	const fillText = (ctx,string, x, y, css, color) => {
+		ctx.save();
+		ctx.font = css;
+		ctx.fillStyle = color;
+		ctx.fillText(string, x, y);
+		ctx.restore();
+	}
+	
+	const WIDTH = 300;
+	const HEIGHT = 400;
+	
+	let canvas = new Array();
+    let ctx = new Array();
+	
 
     window.onload = init;
+	
+	
+	
+	  
 
   </script>
 </head>
 <body>
+  <div id="sheet">
   <section id="top">
-    <h3>POST Status Code Tests</h3>
-    <form id="nameForm" action="/addUser" method="post">
-      <label for="name">Name: </label>
+    <h1>Red Ribbon Character Builder</h1>
+	<p>This is still lacking all visual touches and is most of the primary functionality for the prototype (still more features and fancy style to come).</p>
+	<p>Note: Try changing the version/level to see the module tiers dynamically adjust at certain milestones and each module that is used becomes unavailable for other slots.</p>
+    <form id="nameForm" name="nameForm" action="/addUser" method="post">
+      <label for="name"><b>Build Name: </b></label>
       <input id="nameField" type="text" name="name" />
-      <label for="age">Age: </label>
-      <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
+	  <label for="character"><b>Character: </b></label>
+	  <select id="characterField">
+	    <option value="Android 18" selected>Android 18</option>
+		<option value="Android 17">Android 17</option>
+      </select>
+      <label for="level"><b>Minimum Version/Level: </b></label>
+	  <input id="levelField" type="number" name="level" min="1" max="30" step="1"/>
+	  <div id="modsDiv0">
+	  <label for="mods"><b>Module Structure: </b></label>
+	  <br>
+	  <label for="mods0"><b>Tier 1: </b></label>
+	  <select name="mods0" id="mods0" size="1" style="width: 150px">
+	  </div>
+	  </select>
+	  <div id="modsDiv1">
+	    <label for="modsDiv1"><b>Tier 2: </b></label>
+	    <select name="mods1" id="mods1" size="1" style="width: 150px">
+	    </select>
+	    <select name="mods2" id="mods2" size="1" style="width: 150px">
+        </select>
+	  </div>
+	  <div id="modsDiv2">
+	    <label for="modsDiv2"><b>Tier 3: </b></label>
+	    <select name="mods3" id="mods3" size="1" style="width: 150px">
+	    </select>
+	  </div>
+	  <div id="modsDiv3">
+	    <label for="modsDiv3"><b>Tier 4: </b></label>
+	    <select name="mods4" id="mods4" size="1" style="width: 150px">
+	    </select>
+	    <select name="mods5" id="mods5" size="1" style="width: 150px">
+        </select>
+	  </div>
+	  <div id="modsDiv4">
+	    <label for="modsDiv4"><b>Tier 5 (Special): </b></label>
+	    <select name="mods6" id="mods6" size="1" style="width: 150px">
+	    </select>
+	    <select name="mods7" id="mods7" size="1" style="width: 150px">
+        </select>
+	  </div>
       <input type="submit" value="Add User" />
     </form>
+	</div>
+	<br>
+	<br>
+	<label for="userForm"><b>TEST GET DATA: </b></label>
     <form id="userForm" action="/getUsers" method="get">
       <select id='urlField'>
         <option value='/getUsers'>/getUsers</option>
@@ -207,5 +516,26 @@
   </section>
   <section id="content">
   </section>
+  <br>
+  <div id="data">
+    <canvas id="canvas0">
+		Canvas support is required!
+	</canvas>
+	<canvas id="canvas1">
+		Canvas support is required!
+	</canvas>
+	<canvas id="canvas2">
+		Canvas support is required!
+	</canvas>
+	<canvas id="canvas3">
+		Canvas support is required!
+	</canvas>
+	<canvas id="canvas4">
+		Canvas support is required!
+	</canvas>
+	<canvas id="canvas5">
+		Canvas support is required!
+	</canvas>
+  </div>
 </body>
 </html>
