@@ -12,12 +12,12 @@ const crypto = require('crypto');
 // Same when your heroku app shuts down from inactivity
 // We will be working with databases in the next few weeks.
 
-//Containers for user data
+// Containers for user data
 const allUsers = {};
 let users = {};
 let sUsers = {};
 
-//Data used for meta data
+// Data used for meta data
 const keyValArray = [];
 let keyValArray2 = [];
 let characterNum = 0;
@@ -111,16 +111,16 @@ const searchUsers = (request, response, params) => {
   // json object to send
   let responseJSON = {};
 
-  //check parameters
+  // check parameters
   if (!params.sName || params.sName === '') {
-	//if not a search
+    // if not a search
     isSearch = false;
     users = allUsers;
     responseJSON = {
       users,
     };
   } else {
-	//If a search
+    // If a search
     isSearch = true;
     users = allUsers;
 
@@ -129,7 +129,7 @@ const searchUsers = (request, response, params) => {
     sUsers = {};
     sIndex = 0;
     keyValArray2 = [];
-    //Check search term with wild card characters for any matches
+    // Check search term with wild card characters for any matches
     for (let x = 0; x < characterNum; x++) {
       const check = new RegExp(params.sName);
       if (!!check.test(users[temp[x]].name) === true) {
@@ -139,7 +139,7 @@ const searchUsers = (request, response, params) => {
       }
     }
 
-	//Set search response data
+    // Set search response data
     users = sUsers;
     responseJSON = {
       users,
@@ -182,10 +182,10 @@ const getUsersMeta = (request, response) => {
 
 const searchUsersMeta = (request, response, params) => {
   if (!params.sName || params.sName === '') {
-	//If not a search
+    // If not a search
     isSearch = false;
   } else {
-	//If a search
+    // If a search
     isSearch = true;
     users = allUsers;
 
@@ -194,7 +194,7 @@ const searchUsersMeta = (request, response, params) => {
     sUsers = {};
     sIndex = 0;
     keyValArray2 = [];
-    //Check search term with wild card characters for any matches
+    // Check search term with wild card characters for any matches
     for (let x = 0; x < characterNum; x++) {
       const check = new RegExp(params.sName);
       if (!!check.test(users[temp[x]].name) === true) {
@@ -237,7 +237,7 @@ const addUser = (request, response, body) => {
 
   isSearch = false;
 
-  
+
   // If any are missing, send back an error message as a 400 badRequest
   if (body.level < 5) {
     if (!body.name || !body.character || !body.level || body.mods0 === 'select') {
@@ -298,7 +298,7 @@ const addUser = (request, response, body) => {
   allUsers[body.name].mod6 = body.mods6;
   allUsers[body.name].mod7 = body.mods7;
 
-  //Update user etag
+  // Update user etag
   updateUser();
 
   // if response is created, then set our created message

@@ -1,14 +1,15 @@
- // pull in all required data and modules
+// pull in all required data and modules
 const fs = require('fs');
 const path = require('path');
+
 const logo = fs.readFileSync(`${__dirname}/../src/logo.png`);
 const background = fs.readFileSync(`${__dirname}/../src/Digital.png`);
 const border = fs.readFileSync(`${__dirname}/../src/Border.png`);
 const picBorder = fs.readFileSync(`${__dirname}/../src/PicBorder.png`);
 const background2 = fs.readFileSync(`${__dirname}/../src/circuitry.png`);
-const ribbon = fs.readFileSync(`${__dirname}/../src/RedRibbon.png`); 
+const ribbon = fs.readFileSync(`${__dirname}/../src/RedRibbon.png`);
 
-//Streaming fuction from earlier assignment
+// Streaming fuction from earlier assignment
 const streamFile = (request, response, file, fileType, stats) => {
   const range = request.headers.range;
   if (!range) {
@@ -48,7 +49,7 @@ const streamFile = (request, response, file, fileType, stats) => {
   return stream;
 };
 
-//Loading fuction from earlier assignment
+// Loading fuction from earlier assignment
 const loadFile = (request, response, fileName, fileType) => {
   const file = path.resolve(__dirname, fileName);
 
@@ -63,7 +64,6 @@ const loadFile = (request, response, fileName, fileType) => {
     return streamFile(request, response, file, fileType, stats);
   });
 };
-
 
 
 // ALL of the gets for each file being shared
