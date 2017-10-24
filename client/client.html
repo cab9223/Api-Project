@@ -8,85 +8,126 @@
   <script type="text/babel">
   
   
-  //function to parse our response
+  //function to parse the JSON response
     const parseJSON = (xhr, content) => {
       //parse response (obj will be empty in a 204 updated)
-      const obj = JSON.parse(xhr.response);
-      console.dir(obj);
-      
-      //if message in response, add to screen
-      //if(obj.message) {
-      //  const p = document.createElement('p');
-      //  p.textContent = `Message: ${obj.message}`;
-      //  content.appendChild(p);
-      //}
-      
-      //if users in response, add to screen
-      //if(obj.users) {
-      //  const userList = document.createElement('p');
-      //  const users = JSON.stringify(obj.users);
-      //  userList.textContent = users;
-      //  content.appendChild(userList);
-      //}
+      obj = JSON.parse(xhr.response);
 	  
-	  let index = xhr.getResponseHeader('index');
+	  //check data in the header
+	  isHead = xhr.getResponseHeader('isHead'); 
 	  
-	  let count = xhr.getResponseHeader('count');
+	 
+	  //is this a search
+	  let searching = xhr.getResponseHeader('isSearch');
 	  
-	  let temp = new Array();
+	  //load in the proper meta data based on no search
+	  if(searching === 'false' && xhr.getResponseHeader('count') != 0){
 	  
-	  temp = index.split(", ");
+	    index = xhr.getResponseHeader('index');
 	  
-	  console.log(xhr.getResponseHeader('index'));
+	    count = xhr.getResponseHeader('count');
+
+	    temp = index.split(", ");
 	  
-	  console.dir(temp);
-	  
-	  console.log("COUNT " + count);
-	  
-	  //console.log("NAME IS : " + obj.users['HAHA'].character);
-	  
-	  for( let x = 0; x < count; x++){
-	  
-	  ctx[x].clearRect(0, 0, WIDTH, HEIGHT);
-	  
-	  ctx[x].fillStyle = "green";
-	  ctx[x].fillRect(0,0,WIDTH,HEIGHT);
-	  ctx[x].strokeStyle = "black";
-	  ctx[x].lineWidth = 3;
-	  ctx[x].strokeRect(0,0,WIDTH,HEIGHT);
-	  
-	  fillText(ctx[x],obj.users[temp[x]].name,40,35, "30pt serif", "black");
-	  fillText(ctx[x],obj.users[temp[x]].character,40,60, "15pt serif", "black");
-	  fillText(ctx[x],"Version Num: " + obj.users[temp[x]].level,40,80, "13pt serif", "black");
-	  fillText(ctx[x],"Picture (Not yet implimented)",40,120, "15pt serif", "black");
-	  fillText(ctx[x],"Tier 1",40,190, "12pt serif", "black");
-	  fillText(ctx[x],obj.users[temp[x]].mod0,40,205, "10pt serif", "black");
-	  if(obj.users[temp[x]].level > 4){
-	    fillText(ctx[x],"Tier 2",40,220, "12pt serif", "black");
-		fillText(ctx[x],obj.users[temp[x]].mod1,40,235, "10pt serif", "black");
-		fillText(ctx[x],obj.users[temp[x]].mod2,40,245, "10pt serif", "black");
-	  }
-	  if(obj.users[temp[x]].level > 9){
-	    fillText(ctx[x],"Tier 3",40,270, "12pt serif", "black");
-	    fillText(ctx[x],obj.users[temp[x]].mod3,40,285, "10pt serif", "black");
-	  }
-	  if(obj.users[temp[x]].level > 14){
-	    fillText(ctx[x],"Tier 4",40,300, "12pt serif", "black");  
-	    fillText(ctx[x],obj.users[temp[x]].mod4,40,315, "10pt serif", "black");
-	    fillText(ctx[x],obj.users[temp[x]].mod5,40,325, "10pt serif", "black");
-	  }
-	  if(obj.users[temp[x]].level > 19){
-	    fillText(ctx[x],"Tier 5",40,350, "12pt serif", "black");
-	    fillText(ctx[x],obj.users[temp[x]].mod6,40,365, "10pt serif", "black");
-	    fillText(ctx[x],obj.users[temp[x]].mod7,40,375, "10pt serif", "black");
+	  } else if(searching === 'false'){
+	    count = xhr.getResponseHeader('count');
 	  }
 	  
-	  } //End for loop
+	  //load in the proper meta data based on a search
+	  if(searching === 'true' && xhr.getResponseHeader('count2') != 0){
+	  
+	    index = xhr.getResponseHeader('index2');
+	  
+	    count = xhr.getResponseHeader('count2');
+
+	    temp = index.split(", ");
+		
+	  } else if(searching === 'true'){
+	    count = xhr.getResponseHeader('count2');
+	  }
+	  
+	  //Clear the second content
+	  content2.innerHTML = '';
+	  
+	  
+	  //hide some canvas perhaps
+	  for(let x = count; x < canvasCount; x++){
+	    canvas[x].style.display="none";
+	  }
+	  
+	  
+	  //Create new canvas if needed
+	  for(let x = 0; x < count; x++){
+	   if(x > canvas.length - 1){
+	    canvas[x] = document.createElement('canvas');
+	    canvas[x].width = WIDTH;
+	    canvas[x].height = HEIGHT;
+		canvas[x].id = "canvas" + x;
+	    ctx[x] = canvas[x].getContext('2d');
+		document.getElementById("data").appendChild(canvas[x]);
+		canvasCount++;
+		}
+	  }
+	  
+	  //Display all canvas that are in use
+	  for(let x = 0; x < count; x++){
+	    canvas[x].style.display="inline";
+	  }
+
+	  
+    };
+	
+	//function to parse the meta data
+	const parseHeader = (xhr) => {
+	  
+	  //check data in the header
+	  isHead = xhr.getResponseHeader('isHead');
+	  
+	  //if this is just meta data
+	  if(isHead === 'true'){
+	  
+	  //check if a search happened
+	  let searching = xhr.getResponseHeader('isSearch');
+	  
+	  //if no search set this data
+	  if(searching === 'false' && xhr.getResponseHeader('count') != 0){
+	  
+	    index = xhr.getResponseHeader('index');
+	  
+	    count = xhr.getResponseHeader('count');
+
+	    temp = index.split(", ");
+	  
+	  } else if(searching === 'false'){
+	    count = xhr.getResponseHeader('count');
+	  }
+	  
+	  //if a search set this data
+	  if(searching === 'true' && xhr.getResponseHeader('count2') != 0){
+	  
+	    index = xhr.getResponseHeader('index2');
+	  
+	    count = xhr.getResponseHeader('count2');
+
+	    temp = index.split(", ");
+		
+	  } else if(searching === 'true'){
+	    count = xhr.getResponseHeader('count2');
+	  }
+	  
+	  //Display results on screen
+	  content2.innerHTML = '<b>Inquired Unit Count: </b>' + count;
+	  
+	  //Hide all canvas
+	  for(let x = 0; x < canvasCount; x++){
+	    canvas[x].style.display="none";
+	  }
+	  
+	  }
 	  
     };
   
     const handleResponse = (xhr, parseResponse) => {
-      const content = document.querySelector('#content');
       
       //MAKE SURE DISABLE CACHE IS UNCHECKED
       //printing the etag for version number of this response
@@ -99,19 +140,19 @@
       //The browser will either re-fire a 200 or will show a 304.
       switch(xhr.status) {
         case 200: //if success
-          content.innerHTML = '<b>Success</b>';
+          content.innerHTML = '<b>Successful</b>';
           break;
         case 201: //if created
-          content.innerHTML = '<b>Create</b>';
+          content.innerHTML = '<b>Unit Created</b>';
           break;
 		case 204: //updated (no response back from server)
-          content.innerHTML = '<b>Updated (No Content)</b>';
+          content.innerHTML = '<b>Blueprint Updated</b>';
           return;
         case 304: //if not modified
           //THIS may only fire under certain circumstances
           //Often a 200 will fire because this will tell the
           //browser to pull from cache (which was a 200 response)
-          content.innerHTML = '<b>Not Modified</b>';
+          content.innerHTML = '<b>No Modifications</b>';
           break;
         case 400: //if bad request
           content.innerHTML = '<b>Bad Request</b>';
@@ -129,14 +170,22 @@
         //parse response 
         parseJSON(xhr, content);
       } else {
-        console.log('received');
+	    //parse meta data
+        parseHeader(xhr);
       }
     };
 
     //function to send request
     const requestUpdate = (e, userForm) => {
       //grab url field 
-      const url = userForm.querySelector('#urlField').value;
+      let url = userForm.querySelector('#urlField').value;
+	  
+	  //combine params
+	  if(url === '/search'){
+	    url += '?sName=' + userForm.querySelector('#searchField').value;
+	  }
+	  
+	  
       //grab method selected
       const method = userForm.querySelector('#methodSelect').value;
       
@@ -172,15 +221,31 @@
 	
 	//function to send our post request
     const sendPost = (e, nameForm) => {
+	  //active = false;
+	
       //grab the forms action (url to go to)
       //and method (HTTP method - POST in this case)
       const nameAction = nameForm.getAttribute('action');
       const nameMethod = nameForm.getAttribute('method');
       
-      //grab the form's name and level fields so we can check user input
+      //grab the form's many fields
       const nameField = nameForm.querySelector('#nameField');
 	  const characterField = nameForm.querySelector('#characterField');
       const levelField = nameForm.querySelector('#levelField');
+	  //check if default picture was selected
+	  if(document.getElementById("default").checked === true){
+	    //pick based on character
+		if(nameForm.querySelector('#characterField').value === "Android 18"){
+		  nameForm.querySelector('#imageField').value = "http://s2.narvii.com/image/prp62rslxlg5mmadmnqml7xgle2cxmnu_hq.jpg";
+		} else {
+		  nameForm.querySelector('#imageField').value = "https://vignette.wikia.nocookie.net/dragonball/images/9/9f/Future17.Ep.194.png/revision/latest?cb=20120526194740";
+		}
+	  }
+	  let imageField = nameForm.querySelector('#imageField');
+	  
+	  const specialField1 = nameForm.querySelector('#specialField');
+	  const specialField2 = nameForm.querySelector('#specialField2');
+	  const specialField3 = nameForm.querySelector('#specialField3');
 	  
 	  const mods0 = nameForm.querySelector('#mods0');
 	  const mods1 = nameForm.querySelector('#mods1');
@@ -204,7 +269,7 @@
       xhr.setRequestHeader ('Accept', 'application/json');
       
       //set our function to handle the response
-      xhr.onload = () => handleResponse(xhr, true);
+      xhr.onload = () => handleResponse(xhr, false);
 	  
       
       //build our x-www-form-urlencoded format. Without ajax the 
@@ -216,7 +281,7 @@
       //So ours might look like  name=test&age=22
       //Again the 'name' fields in the form are the variable names in the string
       //and the variable names the server will look for.
-      const formData = `name=${nameField.value}&character=${characterField.value}&level=${levelField.value}&mods0=${mods0.value}&mods1=${mods1.value}&mods2=${mods2.value}&mods3=${mods3.value}&mods4=${mods4.value}&mods5=${mods5.value}&mods6=${mods6.value}&mods7=${mods7.value}`;
+      const formData = `name=${nameField.value}&character=${characterField.value}&level=${levelField.value}&image=${imageField.value}&special1=${specialField.value}&special2=${specialField2.value}&special3=${specialField3.value}&mods0=${mods0.value}&mods1=${mods1.value}&mods2=${mods2.value}&mods3=${mods3.value}&mods4=${mods4.value}&mods5=${mods5.value}&mods6=${mods6.value}&mods7=${mods7.value}`;
       
       //send our request with the data
       xhr.send(formData);
@@ -228,59 +293,30 @@
     };
 
     const init = () => {
-	
-	  canvas[0] = document.querySelector('#canvas0');
-	  canvas[0].width = WIDTH;
-	  canvas[0].height = HEIGHT;
-	  ctx[0] = canvas[0].getContext('2d');
-	  canvas[1] = document.querySelector('#canvas1');
-	  canvas[1].width = WIDTH;
-	  canvas[1].height = HEIGHT;
-	  ctx[1] = canvas[1].getContext('2d');
-	  canvas[2] = document.querySelector('#canvas2');
-	  canvas[2].width = WIDTH;
-	  canvas[2].height = HEIGHT;
-	  ctx[2] = canvas[2].getContext('2d');
-	  canvas[3] = document.querySelector('#canvas3');
-	  canvas[3].width = WIDTH;
-	  canvas[3].height = HEIGHT;
-	  ctx[3] = canvas[3].getContext('2d');
-	  canvas[4] = document.querySelector('#canvas4');
-	  canvas[4].width = WIDTH;
-	  canvas[4].height = HEIGHT;
-	  ctx[4] = canvas[4].getContext('2d');
-	  canvas[5] = document.querySelector('#canvas5');
-	  canvas[5].width = WIDTH;
-	  canvas[5].height = HEIGHT;
-	  ctx[5] = canvas[5].getContext('2d');
 	  
-	  ctx[0].fillStyle = "green";
-	  ctx[0].fillRect(0,0,WIDTH,HEIGHT);
-	  ctx[0].strokeStyle = "black";
-	  ctx[0].lineWidth = 3;
-	  ctx[0].strokeRect(0,0,WIDTH,HEIGHT);
+	  //Prep background canvas
+	  sCanvas[0] = document.querySelector('#canvasMain');
+	  sCTX[0] = sCanvas[0].getContext('2d');
 	  
-	  ctx[1].fillStyle = "green";
-	  ctx[1].fillRect(0,0,WIDTH,HEIGHT);
-	  ctx[1].strokeStyle = "black";
-	  ctx[1].lineWidth = 3;
-	  ctx[1].strokeRect(0,0,WIDTH,HEIGHT);
+	  //Prep foreground canvas
+	  sCanvas[1] = document.querySelector('#canvasTop');
+	  sCTX[1] = sCanvas[1].getContext('2d');
 	  
-	  ctx[2].fillStyle = "green";
-	  ctx[2].fillRect(0,0,WIDTH,HEIGHT);
-	  ctx[2].strokeStyle = "black";
-	  ctx[2].lineWidth = 3;
-	  ctx[2].strokeRect(0,0,WIDTH,HEIGHT);
+	  //Set an ugly default background color
+	  sCTX[0].fillStyle = "green";
+	  sCTX[0].fillRect(0,0,window.innerWidth,window.innerHeight);
 	  
-	
+	  //Prepare the level value for use
 	  let minLevel = document.nameForm.level;
 	  
+	  //Read in the mod elements
 	  let mods0 = document.getElementById("modsDiv0");
 	  let mods1 = document.getElementById("modsDiv1");
 	  let mods2 = document.getElementById("modsDiv2");
 	  let mods3 = document.getElementById("modsDiv3");
 	  let mods4 = document.getElementById("modsDiv4");
 	  
+	  //Turn mods into an array
 	  let modsList = new Array();
 	  modsList[0] = document.nameForm.mods0;
 	  modsList[1] = document.nameForm.mods1;
@@ -291,12 +327,15 @@
       modsList[6] = document.nameForm.mods6;
 	  modsList[7] = document.nameForm.mods7;
  
+      //Array of all potential modules
       let modules = new Array();
       modules[0]="";
-      modules[1]=["Select|select", "Power Module|power", "Speed Module|speed", "Energy Module|energy", "Defense Module|defense", "Focus Chip|focus", "Creation Chip|creation", "Synchronous Chip|syncronous", "Intensification Chip|intenseify", "Enhance Circuit|enhance", "Mind Circuit|mind", "Limiter Circuit|limiter", "Mastery Circuit|mastery", "Data of Piccolo|piccolo", "Data of Vegeta|vegeta", "Data of Gohan|gohan", "Data of Tien|tien", "Data of Krillin|krillin"];
+      modules[1]=["Select|select", "Power Module|Power Module", "Speed Module|Speed Module", "Energy Module|Energy Module", "Defense Module|Defense Module", "Focus Chip|Focus Chip", "Creation Chip|Creation Chip", "Synchronous Chip|Synchronous Chip", "Intensification Chip|Intensification Chip", "Enhance Circuit|Enhance Circuit", "Mind Circuit|Mind Circuit", "Limiter Circuit|Limiter Circuit", "Mastery Circuit|Mastery Circuit", "Data of Piccolo|Data of Piccolo", "Data of Vegeta|Data of Vegeta", "Data of Gohan|Data of Gohan", "Data of Tien|Data of Tien", "Data of Krillin|Data of Krillin"];
  
+      //Populate the modules
       populateMods();
  
+      //Function to populate initial modules
 	  function populateMods(){
 		let selectedGroup = 1;
 		
@@ -309,35 +348,27 @@
 		}
       }
  
+      //Function to update currently used modules
       function updateMods(){
 	    let selected = new Array();
 		
-		console.log("UPDATE");
-		
-	      selected[0] = document.nameForm.mods0.selectedIndex;
-	      selected[1] = document.nameForm.mods1.selectedIndex;
-		  selected[2] = document.nameForm.mods2.selectedIndex;
-	      selected[3] = document.nameForm.mods3.selectedIndex;
-	      selected[4] = document.nameForm.mods4.selectedIndex;
-		  selected[5] = document.nameForm.mods5.selectedIndex;
-	      selected[6] = document.nameForm.mods6.selectedIndex;
-		  selected[7] = document.nameForm.mods7.selectedIndex;
+	    selected[0] = document.nameForm.mods0.selectedIndex;
+	    selected[1] = document.nameForm.mods1.selectedIndex;
+		selected[2] = document.nameForm.mods2.selectedIndex;
+	    selected[3] = document.nameForm.mods3.selectedIndex;
+	    selected[4] = document.nameForm.mods4.selectedIndex;
+		selected[5] = document.nameForm.mods5.selectedIndex;
+	    selected[6] = document.nameForm.mods6.selectedIndex;
+		selected[7] = document.nameForm.mods7.selectedIndex;
 		  
-		  console.log(selected[0]);
-		  console.log(selected[1]);
-		  console.log(selected[2]);
-		  console.log(selected[5]);
 		  
-		
+		//Setup and update the array of mods
 		let selectedGroup = 1;
-		
 	    if(selected == 0){
-			selectedGroup = 0;
+	      selectedGroup = 0;
 		}
 		for(let x = 0; x < 8; x++){
-		  //if(selected[x] == 0){
-            modsList[x].options.length = 0;
-		  //}
+          modsList[x].options.length = 0;
 		}
         if (selectedGroup > 0){
 		for(let j = 0; j < 8; j++){
@@ -354,8 +385,8 @@
         }
       }
 	
+	  //Change how many mod tiers are active based on level/version
 	  function showModLayers() {
-	    console.log("SHOW");
 	    if(minLevel.value > 19){
 		  mods1.style.display = "inline";
           mods2.style.display = "inline";
@@ -383,17 +414,15 @@
 		  mods4.style.display = "none";
 		}
       }
-	  
 	  mods1.style.display = "none";
 	  mods2.style.display = "none";
 	  mods3.style.display = "none";
 	  mods4.style.display = "none";
 	  
-	
+	  //Link level with mods
 	  minLevel.onchange = showModLayers;
 	  
-	  //modsList[0].onchange = updateMods;
-	  
+	  //Make sure to update mods
 	  for(let i = 0; i < 8; i++){
 	    modsList[i].onchange = updateMods;
 	  }
@@ -419,9 +448,190 @@
       //attach submit event (for clicking submit or hitting enter)
       nameForm.addEventListener('submit', addUser);
 	  
+	  //Prepare background song
+      let audio = document.getElementById("song");
+      audio.volume = 0.05;
 	  
+	  //Prepare content fields
+	  const content = document.querySelector('#content');
+	  const content2 = document.querySelector('#content2');
+	  
+	  //Prepare update loop
+	  lastExecution = new Date().getTime();
+	  
+	  //Begin update loop
+	  requestAnimationFrame(update);
 	 
     };
+	
+	const update = () => {
+	  //Maintain update loop
+	  requestAnimationFrame(update);
+	 	
+      //Set current time
+	  let now = new Date().getTime();
+
+	  //Update runs here
+      if ((now - lastExecution) > (1000 / fps)){
+	  
+	    console.log("update");
+		
+		//Cool logo fade effect
+		if(window.pageYOffset !== 0){
+		  document.getElementById("logo").style.opacity = .55;
+		} else {
+		  document.getElementById("logo").style.opacity = 1;
+		}
+		
+		//Search text field appears and disapreads dynamicly
+		if(document.querySelector('#urlField').value === "/getUsers"){
+		  document.querySelector('#searchField').style.display = "none";
+	    } else if(document.querySelector('#urlField').value === "/search"){
+		  document.querySelector('#searchField').style.display = "inline";
+	    }
+		
+		//Fade effect for outer layer
+		if(outerIncreasing === true){
+		  outerIncreasing = false;  
+		  outerAlpha += .015;
+		} else if(outerIncreasing === false){
+		  outerIncreasing = true;
+		  outerAlpha -= .015;
+		}
+		
+		//Fade effect for inner layer
+		if(innerAlpha > .35 && innerIncreasing === true){
+		  innerIncreasing = false;
+		} else if(innerAlpha < .15 && innerIncreasing === false){
+		  innerIncreasing = true;
+		}
+		
+		//Fade effect for inner layer
+		if(innerIncreasing === true){
+		  innerAlpha += .01;
+		} else if(innerIncreasing === false){
+		  innerAlpha -= .01;
+		}
+		
+		
+		// ----DRAWING----
+		
+		//Clear rects in canvases
+		if(isHead !== 'true'){
+		for(let i = 0; i < count; i++){
+		  ctx[i].clearRect(0, 0, canvas[i].width, canvas[i].height);
+		}
+		}
+		for(let i = 0; i < 2; i++){
+		  sCTX[i].clearRect(0, 0, sCanvas[i].width, sCanvas[i].height);
+		}
+		
+		//Background draws
+		sCTX[0].fillStyle = "black";
+	    sCTX[0].fillRect(0,0,sCanvas[0].width,sCanvas[0].height);
+		sCTX[0].save();
+		sCTX[0].globalAlpha = (.3 - innerAlpha + outerAlpha);
+		sCTX[0].drawImage(image3,0,0);
+		sCTX[0].restore();
+		
+		//Foreground draws
+		sCTX[1].save();
+		sCTX[1].globalAlpha = outerAlpha - .15;
+		sCTX[1].fillStyle = "green";
+	    sCTX[1].fillRect(0,0,sCanvas[0].width,sCanvas[0].height);
+		sCTX[1].restore();
+	    sCTX[1].strokeStyle = "black";
+	    sCTX[1].lineWidth = 8;
+	    sCTX[1].strokeRect(0,0,sCanvas[1].width,sCanvas[1].height);
+		
+		
+		
+		//Background for canvases
+	    if(isHead !== 'true'){
+		for(let x = 0; x < count; x++){
+		
+		  ctx[x].fillStyle = "black";
+	      ctx[x].fillRect(0,0,canvas[x].width,canvas[x].height);
+	  
+		  ctx[x].save();
+		  ctx[x].globalAlpha = innerAlpha;
+		  ctx[x].drawImage(image1,0,0);
+		  ctx[x].restore();
+	  
+	    }
+		}
+		
+		//Draw all major data to the unit display canvases
+		if(isHead !== 'true'){
+		for( let x = 0; x < count; x++){
+	  
+	  
+	      let imagePic = new Image();
+	      imagePic.src = obj.users[temp[x]].image;
+	  
+	  
+	      ctx[x].save();
+	  
+	      ctx[x].globalAlpha = .7;
+	      ctx[x].translate(110,0);
+	      ctx[x].textAlign = "center";
+	      ctx[x].textBaseline = "middle";
+	      ctx[x].save();
+	      ctx[x].globalAlpha = .5;
+	      ctx[x].drawImage(image5,-20,20);
+	      ctx[x].restore();
+	      fillText(ctx[x],obj.users[temp[x]].name,40,30, "30pt heavy_data", "white");
+	      fillText(ctx[x],obj.users[temp[x]].character,40,60, "20pt heavy_data", "yellow");
+	      fillText(ctx[x],"V." + obj.users[temp[x]].level + ".0",40,80, "10pt heavy_data", "yellow");
+	      ctx[x].save();
+	      ctx[x].translate(0,30);
+	      fillText(ctx[x],"Tier 1",40,190, "16pt heavy_data", "#c7c7a1");
+	      fillText(ctx[x],obj.users[temp[x]].mod0,40,205, "10pt heavy_data", "yellow");
+	      if(obj.users[temp[x]].level > 4){
+	        fillText(ctx[x],"Tier 2",40,220, "16pt heavy_data", "#c7c7a1");
+		    fillText(ctx[x],obj.users[temp[x]].mod1,40,235, "10pt heavy_data", "yellow");
+		    fillText(ctx[x],obj.users[temp[x]].mod2,40,245, "10pt heavy_data", "yellow");
+	      }
+	      if(obj.users[temp[x]].level > 9){
+	        fillText(ctx[x],"Tier 3",40,260, "16pt heavy_data", "#c7c7a1");
+	        fillText(ctx[x],obj.users[temp[x]].mod3,40,275, "10pt heavy_data", "yellow");
+	      }
+	      if(obj.users[temp[x]].level > 14){
+	        fillText(ctx[x],"Tier 4",40,290, "16pt heavy_data", "#c7c7a1");  
+	        fillText(ctx[x],obj.users[temp[x]].mod4,40,305, "10pt heavy_data", "yellow");
+	        fillText(ctx[x],obj.users[temp[x]].mod5,40,315, "10pt heavy_data", "yellow");
+	      }
+	      if(obj.users[temp[x]].level > 19){
+	        fillText(ctx[x],"Tier 5",40,330, "16pt heavy_data", "#c7c7a1");
+	        fillText(ctx[x],obj.users[temp[x]].mod6,40,345, "10pt heavy_data", "yellow");
+	        fillText(ctx[x],obj.users[temp[x]].mod7,40,355, "10pt heavy_data", "yellow");
+	      }
+	      if(obj.users[temp[x]].special1 !== ''){
+	        fillText(ctx[x],"Extra Instructions",40,380, "18pt heavy_data", "#c7c7a1");
+	        fillText(ctx[x],obj.users[temp[x]].special1,40,400, "10pt heavy_data", "white");
+	        fillText(ctx[x],obj.users[temp[x]].special2,40,420, "10pt heavy_data", "white");
+	        fillText(ctx[x],obj.users[temp[x]].special3,40,440, "10pt heavy_data", "white");
+	      }
+
+	      ctx[x].restore();
+	      ctx[x].restore();
+	  
+	      //Do most image data last to avoid alpha
+	      ctx[x].save();
+	      ctx[x].globalAlpha = .7;
+	      ctx[x].fillStyle = "black";
+	      ctx[x].fillRect(80,95, 140, 105);
+	      ctx[x].restore();
+	      ctx[x].drawImage(imagePic,80,95, 140, 105);
+	      ctx[x].drawImage(image4,80,95);
+	      ctx[x].drawImage(image2,0,0);
+	  
+	      } //End for loop
+	    }
+		//Prepare for next update
+	    lastExecution = new Date().getTime();
+	  }
+	}
 	
 	//Function for making canvas text
 	const fillText = (ctx,string, x, y, css, color) => {
@@ -432,14 +642,66 @@
 		ctx.restore();
 	}
 	
-	const WIDTH = 300;
-	const HEIGHT = 400;
+	//Object container
+	let obj;
 	
+	//Sizes for the smaller canvases
+	const WIDTH = 300;
+	const HEIGHT = 500;
+	
+	//Update variables
+	let lastExecution = 0;
+	const fps = 20;
+	
+	//Animation variables
+	let outerAlpha = .3;
+	let innerAlpha = .3;
+	let outerIncreasing = true;
+	let innerIncreasing = true;
+	
+	//Canvas start data
 	let canvas = new Array();
     let ctx = new Array();
+	let sCanvas = new Array();
+	let sCTX = new Array();
+	
+	
+	//Canvas variables 
+	let canvasCount = 0;
+	let index;
+	let count = 0; 
+	let temp = new Array();
+	let isHead = false;
+	
+	//Pictures prepared
+	let image1 = new Image();
+	image1.src = '/Digital.png';
+		
+	let image2 = new Image();
+	image2.src = '/Border.png';
+		
+	let image3 = new Image();
+	image3.src = '/circuitry.png';
+	
+	let image4 = new Image();
+	image4.src = '/PicBorder.png';
+	
+	let image5 = new Image();
+	image5.src = '/RedRibbon.png';
 	
 
+	//When loaded
     window.onload = init;
+	
+	//When unfocused
+	window.onblur = function(){
+	  document.getElementById("song").pause();
+    };
+
+	//When Focused
+    window.onfocus = function(){
+      document.getElementById("song").play();
+    };
 	
 	
 	
@@ -448,94 +710,98 @@
   </script>
 </head>
 <body>
+  <canvas id="canvasMain">
+	Canvas support is required!
+  </canvas>
+  <canvas id="canvasTop">
+	Canvas support is required!
+  </canvas>
+  <img id="logo" src="logo.png" alt="Logo" height="183" width="353">
   <div id="sheet">
   <section id="top">
-    <h1>Red Ribbon Character Builder</h1>
-	<p>This is still lacking all visual touches and is most of the primary functionality for the prototype (still more features and fancy style to come).</p>
-	<p>Note: Try changing the version/level to see the module tiers dynamically adjust at certain milestones and each module that is used becomes unavailable for other slots.</p>
-    <form id="nameForm" name="nameForm" action="/addUser" method="post">
-      <label for="name"><b>Build Name: </b></label>
-      <input id="nameField" type="text" name="name" />
-	  <label for="character"><b>Character: </b></label>
+    <audio id="song" autoplay loop>
+    <source src="scheming.mp3" type="audio/mpeg">
+      Your browser does not support the audio tag.
+    </audio>
+    <h1><span style="font-size: 1.5em; color: white;">R</span><span style="font-size: 1.5em; color: #880000;">ed 
+	</span><span style="font-size: 1.5em; color: white;">R</span><span style="font-size: 1.5em; color: #880000;">ibbon </span>Blueprint System</h1>
+	<form id="nameForm" name="nameForm" action="/addUser" method="post">
+      <label class="labels" for="name" style="font-size: 2em"><b>Design Name</b></label>
+      <input id="nameField" type="text" name="name" maxlength="13"/>
+	  <label for="character"><p><b>Character </b></p></label>
 	  <select id="characterField">
 	    <option value="Android 18" selected>Android 18</option>
 		<option value="Android 17">Android 17</option>
       </select>
-      <label for="level"><b>Minimum Version/Level: </b></label>
+	  <label class="images" for="level"><p><b>Image Link</b></p></label>
+	  <input id="imageField" type="text" name="image" style="margin-left: 70px"/>
+      <input id="default" type="checkbox" name="default" value="default"> Default
+      <label for="level"><p><b>Minimum Version</b></p></label>
 	  <input id="levelField" type="number" name="level" min="1" max="30" step="1"/>
 	  <div id="modsDiv0">
-	  <label for="mods"><b>Module Structure: </b></label>
-	  <br>
-	  <label for="mods0"><b>Tier 1: </b></label>
+	  <label class="labels" for="mods"style="font-size: 1.5em;"><h2><b>Module Structure</b></h2></label>
+	  <label for="mods0"><p><b>Tier 1</b></p></label>
 	  <select name="mods0" id="mods0" size="1" style="width: 150px">
 	  </div>
 	  </select>
 	  <div id="modsDiv1">
-	    <label for="modsDiv1"><b>Tier 2: </b></label>
+	    <label for="modsDiv1"><p><b>Tier 2</b></p></label>
 	    <select name="mods1" id="mods1" size="1" style="width: 150px">
 	    </select>
 	    <select name="mods2" id="mods2" size="1" style="width: 150px">
         </select>
 	  </div>
 	  <div id="modsDiv2">
-	    <label for="modsDiv2"><b>Tier 3: </b></label>
+	    <label for="modsDiv2"><p><b>Tier 3</b></p></label>
 	    <select name="mods3" id="mods3" size="1" style="width: 150px">
 	    </select>
 	  </div>
 	  <div id="modsDiv3">
-	    <label for="modsDiv3"><b>Tier 4: </b></label>
+	    <label for="modsDiv3"><p><b>Tier 4</b></p></label>
 	    <select name="mods4" id="mods4" size="1" style="width: 150px">
 	    </select>
 	    <select name="mods5" id="mods5" size="1" style="width: 150px">
         </select>
 	  </div>
 	  <div id="modsDiv4">
-	    <label for="modsDiv4"><b>Tier 5 (Special): </b></label>
+	    <label for="modsDiv4"><p><b>Tier 5</b></p></label>
 	    <select name="mods6" id="mods6" size="1" style="width: 150px">
 	    </select>
 	    <select name="mods7" id="mods7" size="1" style="width: 150px">
         </select>
 	  </div>
-      <input type="submit" value="Add User" />
+	  <div style="margin-top: 30px">
+	  <label class="labels" for="special" style="font-size: 2em;"><b>Extra Instructions</b></label>
+      <input id="specialField" style="width: 350px" name="special" maxlength="40"/>
+	  <input id="specialField2" style="width: 350px" name="special2" maxlength="40"/>
+	  <input id="specialField3" style="width: 350px" name="special3" maxlength="40"/>
+	  </div>
+	  <div>
+      <input type="submit" value="Add Unit" style="width:120px;height:50px;margin-top: 30px;font-size: 1.5em;"/>
+	  </div>
     </form>
 	</div>
 	<br>
-	<br>
-	<label for="userForm"><b>TEST GET DATA: </b></label>
-    <form id="userForm" action="/getUsers" method="get">
-      <select id='urlField'>
-        <option value='/getUsers'>/getUsers</option>
-        <option value='/notReal'>/notReal</option>
+	<label for="results"style="font-size: 2em"><p><b>Results</b></p></label>
+	<section id="content">Awaiting</section>
+  </section>
+  <label class="labels" for="userForm" style="font-size: 1.9em"><h2><b>Unit Blueprint Data</b></h2></label>
+    <form id="userForm" name="userForm" action="/getUsers" method="get">
+	  <select name="methodSelect" id="methodSelect">
+        <option value="get">Display</option>
+        <option value="head">Count</option>
       </select>
-      <select id="methodSelect">
-        <option value="get">GET</option>
-        <option value="head">HEAD</option>
+      <select name="urlField" id="urlField">
+        <option value='/getUsers'>All</option>
+		<option value='/search'>Search</option>
       </select>
-      <input type="submit" value="Get User" />
+	  <input id="searchField" type="search" name="searchField" />
+      <input type="submit" value="Access" />
+	  <section id="content2">Awaiting Request</section>
     </form>
-  </section>
-  <section id="content">
-  </section>
   <br>
   <div id="data">
-    <canvas id="canvas0">
-		Canvas support is required!
-	</canvas>
-	<canvas id="canvas1">
-		Canvas support is required!
-	</canvas>
-	<canvas id="canvas2">
-		Canvas support is required!
-	</canvas>
-	<canvas id="canvas3">
-		Canvas support is required!
-	</canvas>
-	<canvas id="canvas4">
-		Canvas support is required!
-	</canvas>
-	<canvas id="canvas5">
-		Canvas support is required!
-	</canvas>
+    
   </div>
 </body>
 </html>

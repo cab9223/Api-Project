@@ -11,10 +11,18 @@ const crypto = require('crypto');
 // When node shuts down this will be cleared.
 // Same when your heroku app shuts down from inactivity
 // We will be working with databases in the next few weeks.
-const users = {};
 
+//Containers for user data
+const allUsers = {};
+let users = {};
+let sUsers = {};
+
+//Data used for meta data
 const keyValArray = [];
+let keyValArray2 = [];
 let characterNum = 0;
+let sIndex = 0;
+let isSearch = false;
 
 // sha1 is a bit of a quicker hash algorithm for insecure things
 // It's a standard library for insecure data hashes
@@ -22,7 +30,7 @@ let characterNum = 0;
 // Those algorithms are *FAR* more expensive, but will increase security.
 // You just want to ensure you know whether you want encryption or hashing.
 // For VERY fast INSECURE hashing, you can use xxhash (not built into node).
-let etag = crypto.createHash('sha1').update(JSON.stringify(users));
+let etag = crypto.createHash('sha1').update(JSON.stringify(allUsers));
 let digest = etag.digest('hex');
 
 // function to respond with a json object
@@ -37,6 +45,10 @@ const respondJSON = (request, response, status, object) => {
     etag: digest,
     index: keyValArray,
     count: characterNum,
+    count2: sIndex,
+    index2: keyValArray2,
+    isSearch,
+    isHead: false,
   };
 
   // send response with json object
@@ -57,6 +69,10 @@ const respondJSONMeta = (request, response, status) => {
     etag: digest,
     index: keyValArray,
     count: characterNum,
+    count2: sIndex,
+    index2: keyValArray2,
+    isSearch,
+    isHead: true,
   };
 
   // send response without json object, just headers
@@ -67,6 +83,9 @@ const respondJSONMeta = (request, response, status) => {
 // get user object
 // should calculate a 200 or 304 based on etag
 const getUsers = (request, response) => {
+  isSearch = false;
+  users = allUsers;
+
   // json object to send
   const responseJSON = {
     users,
@@ -88,9 +107,105 @@ const getUsers = (request, response) => {
   return respondJSON(request, response, 200, responseJSON);
 };
 
+const searchUsers = (request, response, params) => {
+  // json object to send
+  let responseJSON = {};
+
+  //check parameters
+  if (!params.sName || params.sName === '') {
+	//if not a search
+    isSearch = false;
+    users = allUsers;
+    responseJSON = {
+      users,
+    };
+  } else {
+	//If a search
+    isSearch = true;
+    users = allUsers;
+
+    const temp = keyValArray;
+
+    sUsers = {};
+    sIndex = 0;
+    keyValArray2 = [];
+    //Check search term with wild card characters for any matches
+    for (let x = 0; x < characterNum; x++) {
+      const check = new RegExp(params.sName);
+      if (!!check.test(users[temp[x]].name) === true) {
+        sUsers[users[temp[x]].name] = users[temp[x]];
+        keyValArray2[sIndex] = users[temp[x]].name;
+        sIndex++;
+      }
+    }
+
+	//Set search response data
+    users = sUsers;
+    responseJSON = {
+      users,
+    };
+  }
+
+  // check the client's if-none-match header to see the version
+  // number the client is returning (from etag)
+  // If the version number (originally set by the server in etag)
+  // is the same as our current one, then send a 304
+  // 304 cannot have a body in it.
+  if (request.headers['if-none-match'] === digest) {
+    // return 304 response without message 
+    // 304 is not modified and cannot have a body field
+    // 304 will tell the browser to pull from cache instead
+    return respondJSONMeta(request, response, 304);
+  }
+
+  // return 200 with message
+  return respondJSON(request, response, 200, responseJSON);
+};
+
 // get meta info about user object
 // should calculate a 200 or 304 based on etag
 const getUsersMeta = (request, response) => {
+  isSearch = false;
+  // check the client's if-none-match header to see the version
+  // number the client is returning (from etag)
+  // If the version number (originally set by the server in etag)
+  // is the same as our current one, then send a 304
+  // 304 cannot have a body in it.
+  if (request.headers['if-none-match'] === digest) {
+    return respondJSONMeta(request, response, 304);
+  }
+
+  // return 200 without message, just the meta data
+  return respondJSONMeta(request, response, 200);
+};
+
+
+const searchUsersMeta = (request, response, params) => {
+  if (!params.sName || params.sName === '') {
+	//If not a search
+    isSearch = false;
+  } else {
+	//If a search
+    isSearch = true;
+    users = allUsers;
+
+    const temp = keyValArray;
+
+    sUsers = {};
+    sIndex = 0;
+    keyValArray2 = [];
+    //Check search term with wild card characters for any matches
+    for (let x = 0; x < characterNum; x++) {
+      const check = new RegExp(params.sName);
+      if (!!check.test(users[temp[x]].name) === true) {
+        sUsers[users[temp[x]].name] = users[temp[x]];
+        keyValArray2[sIndex] = users[temp[x]].name;
+        sIndex++;
+      }
+    }
+  }
+
+
   // check the client's if-none-match header to see the version
   // number the client is returning (from etag)
   // If the version number (originally set by the server in etag)
@@ -107,7 +222,7 @@ const getUsersMeta = (request, response) => {
 // function just to update our object and recalculate etag
 const updateUser = () => {
   // creating a new hash object 
-  etag = crypto.createHash('sha1').update(JSON.stringify(users));
+  etag = crypto.createHash('sha1').update(JSON.stringify(allUsers));
   // recalculating the hash digest for etag
   digest = etag.digest('hex');
   // console.log('ETAG');
@@ -120,10 +235,10 @@ const addUser = (request, response, body) => {
     message: 'All fields are required.',
   };
 
-  // check to make sure we have both fields
-  // We might want more validation than just checking if they exist
-  // This could easily be abused with invalid types (such as booleans, numbers, etc)
-  // If either are missing, send back an error message as a 400 badRequest
+  isSearch = false;
+
+  
+  // If any are missing, send back an error message as a 400 badRequest
   if (body.level < 5) {
     if (!body.name || !body.character || !body.level || body.mods0 === 'select') {
       responseJSON.id = 'missingParams';
@@ -156,30 +271,34 @@ const addUser = (request, response, body) => {
 
   // if that user's name already exists in our object
   // then switch to a 204 updated status
-  if (users[body.name]) {
+  if (allUsers[body.name]) {
     responseCode = 204;
   } else {
     // otherwise create an object with that name
-    users[body.name] = {};
-    users[body.name].characterNum = characterNum;
+    allUsers[body.name] = {};
+    allUsers[body.name].characterNum = characterNum;
     keyValArray[characterNum] = body.name;
     characterNum++;
   }
 
   // add or update fields for this user name
-  users[body.name].name = body.name;
-  users[body.name].character = body.character;
-  users[body.name].level = body.level;
-  users[body.name].mod0 = body.mods0;
-  users[body.name].mod1 = body.mods1;
-  users[body.name].mod2 = body.mods2;
-  users[body.name].mod3 = body.mods3;
-  users[body.name].mod4 = body.mods4;
-  users[body.name].mod5 = body.mods5;
-  users[body.name].mod6 = body.mods6;
-  users[body.name].mod7 = body.mods7;
+  allUsers[body.name].name = body.name;
+  allUsers[body.name].character = body.character;
+  allUsers[body.name].level = body.level;
+  allUsers[body.name].image = body.image;
+  allUsers[body.name].special1 = body.special1;
+  allUsers[body.name].special2 = body.special2;
+  allUsers[body.name].special3 = body.special3;
+  allUsers[body.name].mod0 = body.mods0;
+  allUsers[body.name].mod1 = body.mods1;
+  allUsers[body.name].mod2 = body.mods2;
+  allUsers[body.name].mod3 = body.mods3;
+  allUsers[body.name].mod4 = body.mods4;
+  allUsers[body.name].mod5 = body.mods5;
+  allUsers[body.name].mod6 = body.mods6;
+  allUsers[body.name].mod7 = body.mods7;
 
-
+  //Update user etag
   updateUser();
 
   // if response is created, then set our created message
@@ -216,9 +335,10 @@ const notFoundMeta = (request, response) => {
 module.exports = {
   addUser,
   getUsers,
+  searchUsers,
   getUsersMeta,
+  searchUsersMeta,
   updateUser,
   notFound,
   notFoundMeta,
-  keyValArray,
 };

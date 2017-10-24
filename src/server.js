@@ -4,8 +4,12 @@ const url = require('url'); // url module
 const query = require('querystring');
 const htmlHandler = require('./htmlResponses.js');
 const jsonHandler = require('./jsonResponses.js');
+const mediaHandler = require('./mediaResponses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
+
+// grab form
+// const ctx0 = document.querySelector('#canvas0');
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
@@ -53,6 +57,10 @@ const onRequest = (request, response) => {
   // returns an object of url parts by name
   const parsedUrl = url.parse(request.url);
 
+  // grab the query parameters (?key=value&key2=value2&etc=etc)
+  // and parse them into a reusable object by field name
+  const params = query.parse(parsedUrl.query);
+
   // check the request method (get, head, post, etc)
   switch (request.method) {
     case 'GET':
@@ -60,14 +68,38 @@ const onRequest = (request, response) => {
         // if homepage, send index
         htmlHandler.getIndex(request, response);
       } else if (parsedUrl.pathname === '/style.css') {
-        // if stylesheet, send stylesheet
+        // send requested file
         htmlHandler.getCSS(request, response);
+      } else if (parsedUrl.pathname === '/Digital.png') {
+        // send requested file
+        mediaHandler.getBackground(request, response);
+      } else if (parsedUrl.pathname === '/circuitry.png') {
+        // send requested file
+        mediaHandler.getBackground2(request, response);
+      } else if (parsedUrl.pathname === '/Border.png') {
+        // send requested file
+        mediaHandler.getBorder(request, response);
+      } else if (parsedUrl.pathname === '/PicBorder.png') {
+        // send requested file
+        mediaHandler.getPicBorder(request, response);
+      } else if (parsedUrl.pathname === '/logo.png') {
+        // send requested file
+        mediaHandler.getLogo(request, response);
+      } else if (parsedUrl.pathname === '/RedRibbon.png') {
+        // send requested file
+        mediaHandler.getRibbon(request, response);
+      } else if (parsedUrl.pathname === '/scheming.mp3') {
+        // send requested file
+        mediaHandler.getSong(request, response);
       } else if (parsedUrl.pathname === '/heavy_data.ttf') {
-        // if stylesheet, send stylesheet
+        // send requested file
         htmlHandler.getFont(request, response);
       } else if (parsedUrl.pathname === '/getUsers') {
         // if get users, send user object back
         jsonHandler.getUsers(request, response);
+      } else if (parsedUrl.pathname === '/search') {
+        // if get users, send user object back
+        jsonHandler.searchUsers(request, response, params);
       } else if (parsedUrl.pathname === '/updateUser') {
         // if update user, change our user object
         jsonHandler.updateUser(request, response);
@@ -80,6 +112,9 @@ const onRequest = (request, response) => {
       if (parsedUrl.pathname === '/getUsers') {
         // if get users, send meta data back with etag
         jsonHandler.getUsersMeta(request, response);
+      } else if (parsedUrl.pathname === '/search') {
+        // if get users, send meta data back with etag
+        jsonHandler.searchUsersMeta(request, response, params);
       } else {
         // if not found send 404 without body
         jsonHandler.notFoundMeta(request, response);

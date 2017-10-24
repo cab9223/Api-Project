@@ -1,19 +1,41 @@
 @font-face {
   font-family: heavy_data;
-  src: url(/src/heavy_data.ttf);
+  src: url(/heavy_data.ttf);
 }
 
 html, body {
+  zoom: 1.5;
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
+  color: yellow;
   font-family: heavy_data, arial, sans-serif;
 }
 
 canvas {
   text-align: center;
+  margin-bottom: 50px;
 }
+
+#canvasMain {
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: -2;
+}
+
+#canvasTop {
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 2;
+  pointer-events: none;
+}
+
+
 
 
 
@@ -29,28 +51,66 @@ canvas {
 
 #top {
   display: block;
-  text-align: left;
+  text-align: center;
   margin: 0 auto;
-  width:150px;
+  width:350px;
 }
 
 #top h1 {
-  width:300px;
-  margin-left: -60px;
+  width:600px;
+  margin-left: -110px;
+  margin-top: -10px;
+  margin-bottom: 165px;
   text-align: center;
-  font-size: 2em;
+  font-size: 3em;
+  color: white;
+  opacity: 0.75;
 }
 
 #top p {
   width:800px;
-  margin-left: -300px;
+  margin-left: -225px;
+  margin-bottom: 0px;
   text-align: center;
   font-size: 1em;
 }
 
 #content {
-  
-  margin-top: 20px;
-  font-size: 2em;
+  font-size: 2.5em;
+  text-align: center;
+  color: white;
+}
+
+#content2 {
+  font-size: 2.5em;
+  text-align: center;
+  color: white;
+}
+
+#logo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -91px;
+  margin-left: -176px;
+  opacity: 0.6;
+  z-index: -1;
+}
+
+.labels {
+	color: #c7c7a1 !important;
+}
+
+input, textarea, select {
+  background-color: #d1d1d1;
+  color: #8c910a;
   text-align: center;
 }
+
+.button {
+  background-color: #5c0e05;
+  color: white;
+}
+
+
+

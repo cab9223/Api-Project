@@ -8,6 +8,7 @@ const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const css = fs.readFileSync(`${__dirname}/../client/style.css`);
 const font = fs.readFileSync(`${__dirname}/../src/heavy_data.ttf`);
 
+
 // function to get the index page
 const getIndex = (request, response) => {
   response.writeHead(200, { 'Content-Type': 'text/html' });
@@ -21,12 +22,13 @@ const getCSS = (request, response) => {
   response.write(css);
   response.end();
 };
-
+// function to get font
 const getFont = (request, response) => {
   response.writeHead(200, { 'Content-Type': 'application/x-font-ttf' });
   response.write(font);
   response.end();
 };
+
 
 // set out public exports
 module.exports = {
