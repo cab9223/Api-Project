@@ -13,8 +13,8 @@
       //parse response (obj will be empty in a 204 updated)
       obj = JSON.parse(xhr.response);
 	  
-	  //check data in the header
-	  isHead = xhr.getResponseHeader('isHead'); 
+	  //set data to not header
+	  isHead = 'false'; 
 	  
 	 
 	  //is this a search
